@@ -3,6 +3,6 @@ const router = Express.Router();
 const fileController = require('../controllers/fileController');
 
 
-router.get("/convertToWord", fileController.getFile);
+router.get("/convertToWord", fileController.getWordFile);
 
 module.exports = router;

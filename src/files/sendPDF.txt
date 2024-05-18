@@ -1,0 +1,53 @@
+const express = require('express');
+const officegen = require('officegen');
+const fs = require('fs');
+
+const app = express();
+const port = 3000;
+
+app.get('/gerar-pdf', (req, res) => {
+    const pdfFilePath = 'path/to/your/generated/document.pdf';
+
+    try {
+        const pdfStream = generatePDF();
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=generated_document.pdf');
+        
+        pdfStream.pipe(res);
+
+        console.log('PDF generated and sent to the browser successfully.');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+function generatePDF() {
+    const pdfDoc = officegen('pdf');
+
+    pdfDoc.on('finalize', function(written) {
+        console.log('Finish to create a PDF file.');
+    });
+
+    pdfDoc.on('error', function(err) {
+        console.error(err);
+        throw err;
+    });
+
+    const pdfStream = fs.createWriteStream(pdfFilePath);
+
+    pdfDoc.pipe(pdfStream);
+
+    // Add content to the PDF - example:
+    const page = pdfDoc.page();
+    page.text('Hello, this is a generated PDF!', 100, 100);
+
+    pdfDoc.end();
+
+    return pdfStream;
+}
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
